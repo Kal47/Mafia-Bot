@@ -1,45 +1,48 @@
 import discord
-import asyncio
 
-client = discord.Client()
+print('Program Start')
 
-@client.event
-async def on_ready():
-	print('Logged in as')
-	print(client.user.name)
-	print(client.user.id)
-	print('------')
-	client.send_message(548917655462084630, 'Bot On!')
+print('Discord.py version ' + discord.__version__)
 
-@client.event
-async def on_message_delete(message):
-	print('Message Deleted!')
-	try:
-		await client.send_message(message.channel, message.author.mention + ' ' + message.content)
-	except HTTPException:
-		print('HTTPException – Sending the message failed.')
-	except Forbidden:
-		print('Forbidden – You do not have the proper permissions to send the message..')
-	except NotFound:
-		print('NotFound – The destination was not found and hence is invalid.')
-	except InvalidArgument:
-		print('InvalidArgument – The destination parameter is invalid.')
-	except:
-		print('Unknown Error')
-		
-@client.event
-async def on_message_edit(message, after):
-	print('Message Edited!')
-	try:
-		await client.send_message(message.channel, message.author.mention + ' ' + message.content)
-	except HTTPException:
-		print('HTTPException – Sending the message failed.')
-	except Forbidden:
-		print('Forbidden – You do not have the proper permissions to send the message..')
-	except NotFound:
-		print('NotFound – The destination was not found and hence is invalid.')
-	except InvalidArgument:
-		print('InvalidArgument – The destination parameter is invalid.')
-	except:
-		print('Unknown Error')
-client.run('NTQ4OTIwMjQ4NDkzOTMyNTU1.D1MVhg.arCU5IxCbE9vNE4AcJU6LDKrLdc')
+print('Opening token file')
+try:
+	token = open("token.txt","r").read()
+except:
+	print('Error: Token File Not Found!')
+	raise SystemExit(0)
+	
+print('Success!')
+print('Waiting for Ready Event')
+
+class MyClient(discord.Client):
+	async def on_ready(self):
+		print('Logged on as {0}!'.format(self.user))
+		print('------------------------------------------------------')
+
+	async def on_message_delete(self, message):
+		print('Message Deleted!')
+		try:
+			await message.channel.send(message.author.mention + ' deleted a message! Its was \n"' + message.content + '"')
+		except:
+			print('Error Sending Deleted Message!')
+
+	def compare( str_1, str_2 ):
+		if len(str_1) != len(str_2):
+			return 0
+		i = 0
+		for x in str_1:	
+			if str_1[i] != str_2[i]:
+				return 0
+		i = i + 1
+		return 1
+	
+	async def on_message_edit(self, before, after):
+		print('Message Edited!')
+		if compate(before.content, after.content) == 0:
+			try:
+				await before.channel.send(before.author.mention + ' Edited a message! It was \n"' + before.content + '"')
+			except:
+				print('Error Sending Edit Message!')
+
+client = MyClient()
+client.run(token)
