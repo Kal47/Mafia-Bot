@@ -26,23 +26,16 @@ class MyClient(discord.Client):
 		except:
 			print('Error Sending Deleted Message!')
 
-	def compare( str_1, str_2 ):
-		if len(str_1) != len(str_2):
-			return 0
-		i = 0
-		for x in str_1:	
-			if str_1[i] != str_2[i]:
-				return 0
-		i = i + 1
-		return 1
+
 	
 	async def on_message_edit(self, before, after):
 		print('Message Edited!')
-		if compate(before.content, after.content) == 0:
+		if before.content != after.content:
 			try:
 				await before.channel.send(before.author.mention + ' Edited a message! It was \n"' + before.content + '"')
 			except:
 				print('Error Sending Edit Message!')
+	
 
 client = MyClient()
 client.run(token)
