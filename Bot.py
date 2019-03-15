@@ -1,6 +1,5 @@
-import discord
-
 print('Program Start')
+import discord
 
 print('Discord.py version ' + discord.__version__)
 
@@ -11,29 +10,33 @@ except:
 	print('Error: Token File Not Found!')
 	raise SystemExit(0)
 	
-print('Success!')
 print('Waiting for Ready Event')
 
 class MyClient(discord.Client):
 
 	purgeInProgress = False
+	history = []
 	
 	async def on_ready(self):
 		print('Logged on as {0}!'.format(self.user))
 		print('------------------------------------------------------')
 
-	async def on_message_delete(self, message):	
-		#checks if purge is going on and disables the delete message
-		if self.purgeInProgress:
-			return
 		
+	async def on_message_delete(self, message):	
 		print('Message Deleted!')
+		#checks if message was in purge and ignores it	
+		for x in self.history:
+			if x.id == message.id:
+				print('Deleted Massage was in purge')		
+				return
+		
 		if message.author == client.user:
 			return		
 		try:
 			await message.channel.send(message.author.mention + ' deleted a message! Its was \n"' + message.content + '"')
 		except:
 			print('Error Sending Deleted Message!')
+	
 	
 	async def on_message_edit(self, before, after):
 		print('Message Edited!')
@@ -43,45 +46,44 @@ class MyClient(discord.Client):
 			except:
 				print('Error Sending Edit Message!')
 	
+	
 	async def on_message(self, message):
 		#if message was sent by bot ignore
 		if message.author == client.user:
 			return	
 			
 		#Help command
-		if message.content.startswith('!help'):
+		if message.content == '!help':
 			await message.channel.send(
 			'''!help: Opens Help text			
 			
 		!purge: Deletes 500 of the most recent messages in a channel
-			-Requires User to have Administrator Privileges 			
+			-Requires User to have Administrator Privileges 
+			-Bot Needs to have manage message privileges
+			-ONLY USE ON ONE CHANNEL AT A TIME
 			''')
-			
+		
 		#Purge command. Has to be exactly that phrase to reduce the change of accidentally activating	
 		if message.content == ('!purge'):
 			print("Purge command sent!")
 			#checks if user who sent the command has permissions to manage messages which includes deleting messages
 			if message.author.permissions_in(message.channel).administrator == True:
 				#set purgeInProgress to true, this disable the delete message feature
-				self.purgeInProgress = True;				
-				#grab history of channel and turn it into a list
-				history = await message.channel.history(limit=500).flatten()
-				#iterate through list calling delete() 
-				for x in history:
-					try:
-						await x.delete()
-					except:
-						#bot does not have permissions to execute this command, enables delete message, informs the server it has an issue
-						self.purgeInProgress = False;
-						await message.channel.send('Error: Forbidden: Unable to delete messages due to lack of permissions')
-						return
-				#turns re-enables delete messages when purge is done
-				message.delete()
-				self.purgeInProgress = False;
+				#self.purgeInProgress = True;				
+				#grab history of channel and turn it into a list using .flatten()
+				self.history = await message.channel.history(limit=500).flatten()				
+				try:
+					await message.channel.delete_messages(self.history)
+				except:
+					#bot does not have permissions to execute this command, enables delete message, informs the server it has an issue					
+					await message.channel.send('Error: Forbidden: Unable to delete messages due to lack of permissions')
+					self.purgeInProgress = False;
+					return
+				#turns re-enables delete messages when purge is done				
 			else:
 				#yell at whoever tried to 
 				await message.channel.send('Error: You do not have permissions to use this command')
-				
-			
+				self.purgeInProgress = False;
+		
 client = MyClient()
 client.run(token)
