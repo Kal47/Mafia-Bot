@@ -20,7 +20,7 @@ class MyClient(discord.Client):
 		print('------------------------------------------------------')
 
 	async  def on_member_join(self, member):
-		await member.guild.system_channel.send(member.name + " has wondered into town!")
+		await member.guild.system_channel.send(member.name + " has wandered into town!")
 	
 	async def on_message_delete(self, message):	
 		print('Message Deleted!')
