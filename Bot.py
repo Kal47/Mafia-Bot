@@ -40,12 +40,13 @@ class MyClient(discord.Client):
 	
 	async def on_message_edit(self, before, after):
 		print('Message Edited!')
-		if before.content != after.content:
-			if before.channel.name == 'town-square' or before.channel.name == 'dead-chat': #only on these two chats
-				try:
-					await before.channel.send(before.author.mention + ' Edited a message! It was \n"' + before.content + '"')
-				except:
-					print('Error Sending Edit Message!')
+		if message.author.permissions_in(message.channel).administrator != True:
+			if before.content != after.content:
+				if before.channel.name == 'town-square' or before.channel.name == 'dead-chat': #only on these two chats
+					try:
+						await before.channel.send(before.author.mention + ' Edited a message! It was \n"' + before.content + '"')
+					except:
+						print('Error Sending Edit Message!')
 	
 	
 	async def on_message(self, message):
