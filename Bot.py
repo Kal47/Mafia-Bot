@@ -33,14 +33,14 @@ class MyClient(discord.Client):
 		if message.author.permissions_in(message.channel).administrator != True:
 			if message.channel.name == 'town-square' or message.channel.name == 'dead-chat': #only on these two chats
 				try:
-					await message.channel.send(message.author.mention + ' deleted a message! Its was \n"' + message.content + '"')
+					await message.channel.send(message.author.mention + ' deleted a message! It was \n"' + message.content + '"')
 				except:
 					print('Error Sending Deleted Message in ' + message.channel.name + '!')
 	
 	
 	async def on_message_edit(self, before, after):
 		print('Message Edited!')
-		if message.author.permissions_in(message.channel).administrator != True:
+		if before.author.permissions_in(before.channel).administrator != True:
 			if before.content != after.content:
 				if before.channel.name == 'town-square' or before.channel.name == 'dead-chat': #only on these two chats
 					try:
@@ -81,6 +81,7 @@ class MyClient(discord.Client):
 				"*notices ur accusation* uwu what's this?"
 				]
 				await message.channel.send(responses[random.randint(0, len(responses)-1)])
+				return
 
 		#Help command
 		if message.content == '!help':
@@ -94,6 +95,7 @@ class MyClient(discord.Client):
 Notes about channels. The bot will only activate on channels named "town-square" or "dead-chat"
 Make sure the names are exactly that or it will not work.
 			''')
+			return
 		
 		#Purge command. Has to be exactly that phrase to reduce the change of accidentally activating	
 		if message.content == ('!purge'):
@@ -119,7 +121,22 @@ Make sure the names are exactly that or it will not work.
 			else:
 				#yell at whoever tried to run it without permissions
 				await message.channel.send('Error: You do not have permissions to use this command!')
-					
+			return
+
+		if message.channel.name == 'town-square':
+			embed = embed = discord.Embed(color=0x000000)
+			embed.add_field(name=message.author.display_name, value=message.content, inline=False)
+			authorAvitarUrl = message.author.avatar_url
+			embed.set_thumbnail(url=authorAvitarUrl)
+			spectatorChannel = None
+			for x in message.guild.text_channels:
+				if x.name == 'spectator-square':
+					spectatorChannel = x
+					break
+
+			await spectatorChannel.send(embed=embed)
+
+
 client = MyClient()
 client.run(token)
 client.max_messages = 10000
