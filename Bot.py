@@ -58,12 +58,12 @@ class MyClient(discord.Client):
 		if message.content.find("<@" + str(self.user.id) + ">") != -1:				
 			if message.content.lower().find("i accuse") != -1:
 				responses = ["no u", 
-				"This is all part of my 'Potato Play' I swear. :PotatoPlay:", 
+				"This is all part of my 'Potato Play' I swear.", 
 				"After all I've done for you this is the thanks I get?!", 
 				"Where's you will, huh? Wheres your PrOoF?", 
 				"do it you wont", 
-				"*Actually,* I'm Sheriff, and you're evil! ", 
-				"I claim Jester", 
+				"*Actually,* I'm Seer, and you're evil! ", 
+				"I claim Wisp", 
 				"Noted",
 				"Someone in dead chat is reeing so hard right now",
 				"Oh OK, well I accuse " + message.author.name,
